@@ -45,6 +45,14 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+userSchema.pre("updateOne", async function(next) {
+  const update = this.getUpdate();
+  if(update.$set && update.$set.password) {
+    update.$set.password = await bcrypt.hash(update.$set.password, 10);
+  }
+  next();
+});
+
 userSchema.methods.comparePassword = async function(userProvidedHash) {
     const user = this;
   const isValid = await bcrypt.compare(userProvidedHash, user.password);
